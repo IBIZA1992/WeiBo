@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "message.fill.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
