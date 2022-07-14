@@ -24,6 +24,9 @@
     WBOauthModel *oauthModel = [WBOauthModel shareInstance];
     [oauthModel readDataFromLocal];
     
+    NSLog(@"this is in dev");
+    NSLog(@"this is in feature");
+    
     WBLikeModel *likeModel = [WBLikeModel shareInstance];
     [likeModel readDataFromLocal];
     

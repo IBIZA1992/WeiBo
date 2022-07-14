@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6116F2F78921904B6BCBD5FA /* libPods-WeiBo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DBEEB2AD78D2465990D1EAC9 /* libPods-WeiBo.a */; };
 		A82DB4952827E1E900BB3A77 /* WBLikeModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A82DB4942827E1E900BB3A77 /* WBLikeModel.m */; };
 		A82DB49B2827E92D00BB3A77 /* WBMineLikeViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A82DB49A2827E92D00BB3A77 /* WBMineLikeViewController.m */; };
 		A82DB4A128289F7200BB3A77 /* WBMineHistoryViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A82DB4A028289F7200BB3A77 /* WBMineHistoryViewController.m */; };
@@ -73,6 +74,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		045AE97E4FEB040A4549B4FB /* Pods-WeiBo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeiBo.debug.xcconfig"; path = "Target Support Files/Pods-WeiBo/Pods-WeiBo.debug.xcconfig"; sourceTree = "<group>"; };
+		8D9284CA8CDA16BED75719F0 /* Pods-WeiBo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeiBo.release.xcconfig"; path = "Target Support Files/Pods-WeiBo/Pods-WeiBo.release.xcconfig"; sourceTree = "<group>"; };
 		A82DB4932827E1E900BB3A77 /* WBLikeModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBLikeModel.h; sourceTree = "<group>"; };
 		A82DB4942827E1E900BB3A77 /* WBLikeModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBLikeModel.m; sourceTree = "<group>"; };
 		A82DB4992827E92D00BB3A77 /* WBMineLikeViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBMineLikeViewController.h; sourceTree = "<group>"; };
@@ -150,6 +153,7 @@
 		A8E84506282E719A002DCA8B /* WBHistorySearchModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBHistorySearchModel.m; sourceTree = "<group>"; };
 		A8E8450B282E808D002DCA8B /* WBSearchView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBSearchView.h; sourceTree = "<group>"; };
 		A8E8450C282E808D002DCA8B /* WBSearchView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBSearchView.m; sourceTree = "<group>"; };
+		DBEEB2AD78D2465990D1EAC9 /* libPods-WeiBo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-WeiBo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -170,6 +174,7 @@
 				A89EF6BB2825FB1D0039A1E6 /* SystemConfiguration.framework in Frameworks */,
 				A89EF6B92825FB120039A1E6 /* ImageIO.framework in Frameworks */,
 				A89EF6B72825FB090039A1E6 /* QuartzCore.framework in Frameworks */,
+				6116F2F78921904B6BCBD5FA /* libPods-WeiBo.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -190,6 +195,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		2769B09A586A335E2B17FC30 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				045AE97E4FEB040A4549B4FB /* Pods-WeiBo.debug.xcconfig */,
+				8D9284CA8CDA16BED75719F0 /* Pods-WeiBo.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		A8730201281F684600171954 /* WeiBoViewController */ = {
 			isa = PBXGroup;
 			children = (
@@ -315,6 +330,7 @@
 				A89EF6BA2825FB1D0039A1E6 /* SystemConfiguration.framework */,
 				A89EF6B82825FB120039A1E6 /* ImageIO.framework */,
 				A89EF6B62825FB090039A1E6 /* QuartzCore.framework */,
+				DBEEB2AD78D2465990D1EAC9 /* libPods-WeiBo.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -340,6 +356,7 @@
 				A8E16270281D1A02003FF549 /* WeiBoUITests */,
 				A8E16249281D19FF003FF549 /* Products */,
 				A89EF6B52825FB090039A1E6 /* Frameworks */,
+				2769B09A586A335E2B17FC30 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -409,9 +426,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A8E16277281D1A02003FF549 /* Build configuration list for PBXNativeTarget "WeiBo" */;
 			buildPhases = (
+				363ABFABB9D9EA62C61A644F /* [CP] Check Pods Manifest.lock */,
 				A8E16244281D19FF003FF549 /* Sources */,
 				A8E16245281D19FF003FF549 /* Frameworks */,
 				A8E16246281D19FF003FF549 /* Resources */,
+				F12530BD8E5E0D1EF6608402 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -527,6 +546,48 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		363ABFABB9D9EA62C61A644F /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-WeiBo-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		F12530BD8E5E0D1EF6608402 /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WeiBo/Pods-WeiBo-resources-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-WeiBo/Pods-WeiBo-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-WeiBo/Pods-WeiBo-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A8E16244281D19FF003FF549 /* Sources */ = {
@@ -728,6 +789,7 @@
 		};
 		A8E16278281D1A02003FF549 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 045AE97E4FEB040A4549B4FB /* Pods-WeiBo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -759,6 +821,7 @@
 		};
 		A8E16279281D1A02003FF549 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8D9284CA8CDA16BED75719F0 /* Pods-WeiBo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;

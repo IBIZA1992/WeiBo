@@ -1,0 +1,6 @@
+target 'WeiBo' do 
+	pod 'AFNetworking'
+	pod 'SDWebImage'
+	pod 'MJRefresh'
+	pod 'SDAutoLayout'
+end
