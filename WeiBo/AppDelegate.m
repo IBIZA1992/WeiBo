@@ -27,6 +27,8 @@
     WBLikeModel *likeModel = [WBLikeModel shareInstance];
     [likeModel readDataFromLocal];
     
+    NSLog(@"dev前进一步");
+    
     WBHistoryModel *historyModel = [WBHistoryModel shareInstance];
     [historyModel readDataFromLocal];
     
