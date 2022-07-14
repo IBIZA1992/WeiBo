@@ -29,6 +29,9 @@
     
     NSLog(@"this is in dev");
     
+    NSLog(@"这一次是dev");
+    NSLog(@"这一次是feature");
+    
     WBLikeModel *likeModel = [WBLikeModel shareInstance];
     [likeModel readDataFromLocal];
     
