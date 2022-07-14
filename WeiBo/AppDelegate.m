@@ -29,6 +29,8 @@
     
     NSLog(@"this is feature 1");
     NSLog(@"this is feature 2");
+    NSLog(@"this is feature 3");
+    
     
     WBLikeModel *likeModel = [WBLikeModel shareInstance];
     [likeModel readDataFromLocal];
