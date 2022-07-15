@@ -6,6 +6,7 @@
 //
 
 #import "WBOauthModel.h"
+#import <AFNetworking.h>
 
 @implementation WBOauthModel
 
