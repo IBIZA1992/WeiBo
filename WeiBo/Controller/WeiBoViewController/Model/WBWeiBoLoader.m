@@ -10,6 +10,7 @@
 #import "WBOauthModel.h"
 #import "WBCacheWeiBoModel.h"
 #import "WBGetWeiBoItemHeight.h"
+#import <AFNetworking.h>
 
 @implementation WBWeiBoLoader
 
@@ -23,86 +24,89 @@
         if (pageNum == 0) {
             NSMutableArray *listItemArray = @[].mutableCopy;
             urlString = [NSString stringWithFormat:@"https://api.weibo.com/2/statuses/user_timeline.json?access_token=%@", oauthModel.access_token];
-            NSURL *listURL = [NSURL URLWithString:urlString];
-            NSURLSession *session = [NSURLSession sharedSession];
-            NSURLSessionDataTask *dataTask = [session dataTaskWithURL:listURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                NSError *jsonError;
-                id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                NSArray *dataArray = [(NSDictionary *)jsonObj objectForKey:@"statuses"];
-                if (dataArray != nil) {
-                    for (NSDictionary *info in dataArray) {
-                        WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
-                        [listItem configMineWithDictionary:info];
-                        if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw]) {
-                            [listItemArray addObject:listItem];
-                        }
-                    }
-                    NSString *urlString = [NSString stringWithFormat:@"https://api.weibo.com/2/statuses/home_timeline.json?access_token=%@&page=1", oauthModel.access_token];
-                    NSURL *listURL = [NSURL URLWithString:urlString];
-                    NSURLSession *session = [NSURLSession sharedSession];
-                    NSURLSessionDataTask *dataTask = [session dataTaskWithURL:listURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                        NSError *jsonError;
-                        id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                        NSArray *dataArray = [(NSDictionary *)jsonObj objectForKey:@"statuses"];
+            
+            // 请求网络
+            [[AFHTTPSessionManager manager] GET:urlString parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+
+                    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                        NSLog(@"");
+                        NSArray *dataArray = [responseObject objectForKey:@"statuses"];
                         if (dataArray != nil) {
                             for (NSDictionary *info in dataArray) {
                                 WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
-                                NSString *uid = [listItem configMineWithDictionary:info];
-                                if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw] && ![uid isEqualToString:oauthModel.uid]) {
+                                [listItem configMineWithDictionary:info];
+                                if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw]) {
                                     [listItemArray addObject:listItem];
                                 }
                             }
+                            NSString *urlString = [NSString stringWithFormat:@"https://api.weibo.com/2/statuses/home_timeline.json?access_token=%@&page=1", oauthModel.access_token];
+                            [[AFHTTPSessionManager manager] GET:urlString parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+                                
+                            } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                                NSArray *dataArray = [responseObject objectForKey:@"statuses"];
+                                if (dataArray != nil) {
+                                    for (NSDictionary *info in dataArray) {
+                                        WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
+                                        NSString *uid = [listItem configMineWithDictionary:info];
+                                        if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw] && ![uid isEqualToString:oauthModel.uid]) {
+                                            [listItemArray addObject:listItem];
+                                        }
+                                    }
+                                }
+                                dispatch_async(dispatch_get_main_queue(), ^{  // 放在主线程
+                                    WBGetWeiBoItemHeight *getHeight = [[WBGetWeiBoItemHeight alloc] init];
+                                    for (WBWeiBoItem *item in listItemArray) {
+                                        item.height = [getHeight getItemHeight:item];
+                                    }
+                                    [cacheWeiBoModel archiveListDataWithArray:listItemArray.copy category:category];
+                                    if (finishBlock) {
+                                        finishBlock(YES, listItemArray);
+                                    }
+                                    if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishLoader)]) {
+                                        [self.delegate didFinishLoader];
+                                    }
+                                });
+                            } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                                
+                            }];
                         }
-                        dispatch_async(dispatch_get_main_queue(), ^{  // 放在主线程
-                            WBGetWeiBoItemHeight *getHeight = [[WBGetWeiBoItemHeight alloc] init];
-                            for (WBWeiBoItem *item in listItemArray) {
-                                item.height = [getHeight getItemHeight:item];
-                            }
-                            [cacheWeiBoModel archiveListDataWithArray:listItemArray.copy category:category];
-                            if (finishBlock) {
-                                finishBlock(error == nil, listItemArray);
-                            }
-                            if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishLoader)]) {
-                                [self.delegate didFinishLoader];
-                            }
-                        });
+                    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                        NSLog(@"");
                     }];
-                    [dataTask resume];
-                }
-            }];
-            [dataTask resume];
+            
         } else {
             urlString = [NSString stringWithFormat:@"https://api.weibo.com/2/statuses/home_timeline.json?access_token=%@&page=%@", oauthModel.access_token, @(pageNum+1)];
-            NSURL *listURL = [NSURL URLWithString:urlString];
-            NSURLSession *session = [NSURLSession sharedSession];
-            NSURLSessionDataTask *dataTask = [session dataTaskWithURL:listURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-                NSError *jsonError;
-                id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                NSArray *dataArray = [(NSDictionary *)jsonObj objectForKey:@"statuses"];
-                NSMutableArray *listItemArray = @[].mutableCopy;
-                if (dataArray != nil) {
-                    for (NSDictionary *info in dataArray) {
-                        WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
-                        NSString *uid = [listItem configMineWithDictionary:info];
-                        if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw] && ![uid isEqualToString:oauthModel.uid]) {
-                            [listItemArray addObject:listItem];
-                        }
-                    }
-                }
-                dispatch_async(dispatch_get_main_queue(), ^{  // 放在主线程
-                    WBGetWeiBoItemHeight *getHeight = [[WBGetWeiBoItemHeight alloc] init];
-                    for (WBWeiBoItem *item in listItemArray) {
-                        item.height = [getHeight getItemHeight:item];
-                    }
-                    if (finishBlock) {
-                        finishBlock(error == nil, listItemArray);
-                    }
-                    if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishLoader)]) {
-                        [self.delegate didFinishLoader];
-                    }
-                });
-            }];
-            [dataTask resume];
+            
+            // 加载网络
+            [[AFHTTPSessionManager manager] GET:urlString parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+                            
+                        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                            NSArray *dataArray = [responseObject objectForKey:@"statuses"];
+                            NSMutableArray *listItemArray = @[].mutableCopy;
+                            if (dataArray != nil) {
+                                for (NSDictionary *info in dataArray) {
+                                    WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
+                                    NSString *uid = [listItem configMineWithDictionary:info];
+                                    if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw] && ![uid isEqualToString:oauthModel.uid]) {
+                                        [listItemArray addObject:listItem];
+                                    }
+                                }
+                            }
+                            dispatch_async(dispatch_get_main_queue(), ^{  // 放在主线程
+                                WBGetWeiBoItemHeight *getHeight = [[WBGetWeiBoItemHeight alloc] init];
+                                for (WBWeiBoItem *item in listItemArray) {
+                                    item.height = [getHeight getItemHeight:item];
+                                }
+                                if (finishBlock) {
+                                    finishBlock(YES, listItemArray);
+                                }
+                                if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishLoader)]) {
+                                    [self.delegate didFinishLoader];
+                                }
+                            });
+                        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                            
+                        }];
         }
     } else {
         if (category == WBWeiBoCategoryHot) {
@@ -130,38 +134,40 @@
                 urlString = [NSString stringWithFormat:@"https://weibo.com/ajax/feed/hottimeline?refresh=2&group_id=1028034288&containerid=102803_ctg1_4288_-_ctg1_4288&extparam=discover%%7Cnew_feed&max_id=%@&count=10", @(pageNum+1)];
             }
         }
-        NSURL *listURL = [NSURL URLWithString:urlString];
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *dataTask = [session dataTaskWithURL:listURL completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            NSError *jsonError;
-            id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-            NSArray *dataArray = [(NSDictionary *)jsonObj objectForKey:@"statuses"];
-            NSMutableArray *listItemArray = @[].mutableCopy;
-            for (NSDictionary *info in dataArray) {
-                WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
-                [listItem configWithDictionary:info];
-                if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw]) {
-                    [listItemArray addObject:listItem];
-                }
-            }
-            dispatch_async(dispatch_get_main_queue(), ^{  // 放在主线程
-                WBGetWeiBoItemHeight *getHeight = [[WBGetWeiBoItemHeight alloc] init];
-                for (WBWeiBoItem *item in listItemArray) {
-                    item.height = [getHeight getItemHeight:item];
-                }
-                if (pageNum == 0) {
-                    [cacheWeiBoModel archiveListDataWithArray:listItemArray.copy category:category];
-                }
-                if (finishBlock) {
-                    finishBlock(error == nil, listItemArray);
-                }
-                
-                if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishLoader)]) {
-                    [self.delegate didFinishLoader];
-                }
-            });
-        }];
-        [dataTask resume];
+
+        // 设置header,防止出现m.weibo这样在移动端的现象
+        NSDictionary *header = @{@"User-Agent":@"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15"};
+        // 请求网络
+        [[AFHTTPSessionManager manager] GET:urlString parameters:nil headers:header progress:^(NSProgress * _Nonnull downloadProgress) {
+
+                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    NSArray *dataArray = [responseObject objectForKey:@"statuses"];
+                    NSMutableArray *listItemArray = @[].mutableCopy;
+                    for (NSDictionary *info in dataArray) {
+                        WBWeiBoItem *listItem = [[WBWeiBoItem alloc] init];
+                        [listItem configWithDictionary:info];
+                        if (!listItem.isMedia && ![listItem.text_raw containsString:@"http://mapi/"] && ![self _isManyWeb:listItem.text_raw]) {
+                            [listItemArray addObject:listItem];
+                        }
+                    }
+                    dispatch_async(dispatch_get_main_queue(), ^{  // 放在主线程
+                        WBGetWeiBoItemHeight *getHeight = [[WBGetWeiBoItemHeight alloc] init];
+                        for (WBWeiBoItem *item in listItemArray) {
+                            item.height = [getHeight getItemHeight:item];
+                        }
+                        if (pageNum == 0) {
+                            [cacheWeiBoModel archiveListDataWithArray:listItemArray.copy category:category];
+                        }
+                        if (finishBlock) {
+                            finishBlock(YES, listItemArray);
+                        }
+                        if (self.delegate && [self.delegate respondsToSelector:@selector(didFinishLoader)]) {
+                            [self.delegate didFinishLoader];
+                        }
+                    });
+                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    
+                }];
     }
 }
 
@@ -177,7 +183,5 @@
         return YES;
     }
 }
-
-    
 
 @end
