@@ -11,13 +11,12 @@
 #import "WBOauthModel.h"
 #import "WBMineLikeViewController.h"
 #import "WBMineHistoryViewController.h"
-#import "WBWebImage.h"
 #import <AFNetworking.h>
+#import <SDWebImage.h>
 
 @interface WBMineViewController ()<WKNavigationDelegate>
 
 @property(nonatomic, strong, readwrite) WBOauthModel *oauthModel;
-@property(nonatomic, strong, readwrite) WBWebImage *webImage;
 
 // 公用组件
 @property(nonatomic, strong, readwrite) UIView *twoButtonDetailView;
@@ -46,8 +45,6 @@
         self.view.backgroundColor = [UIColor colorWithRed:0.933 green:0.929 blue:0.949 alpha:1];
         
         _oauthModel = [WBOauthModel shareInstance];
-      
-        _webImage = [WBWebImage shareInstance];
 
         // 初始化公用控件
         _twoButtonDetailView = [[UIView alloc] initWithFrame:UIRect(54, 257, 282, 89)];
@@ -221,18 +218,10 @@
                 [self.nameLabel sizeToFit];
                 self.nameLabel.frame = CGRectMake(UI(120), UI(135), self.nameLabel.bounds.size.width, self.nameLabel.bounds.size.height);
             });
-            dispatch_queue_global_t downloadQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            dispatch_queue_main_t mainQueue = dispatch_get_main_queue();
-            dispatch_async(downloadQueue, ^{
-                UIImage *image = [self.webImage loadImageWithUrlString:[responseObject objectForKey:@"avatar_large"]];
-                if (image) {
-                    dispatch_async(mainQueue, ^{
-                        self.headImageView.image = image;
-                    });
-                }
-            });
+            // 加载头像
+            [self.headImageView sd_setImageWithURL:[NSURL URLWithString:[responseObject objectForKey:@"avatar_large"]] placeholderImage:[UIImage imageNamed:@"head"]];
         } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-            NSLog(@"");
+            
         }];
 }
 

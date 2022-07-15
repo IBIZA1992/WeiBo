@@ -11,7 +11,7 @@
 #import "WBTextView.h"
 #import "WBButton.h"
 #import "WBLikeModel.h"
-#import "WBWebImage.h"
+#import <SDWebImage.h>
 
 @interface WBWeiBoTableViewCell()<UITextViewDelegate>
 @property (nonatomic, strong, readwrite) UIImageView *headImg;
@@ -27,7 +27,6 @@
 @property (nonatomic, strong, readwrite) WBButton *attitudes;
 @property (nonatomic, strong, readwrite) UIButton *likeButton;
 @property (nonatomic, strong, readwrite) WBLikeModel *likeModel;
-@property (nonatomic, strong, readwrite) WBWebImage *webImage;
 @property (nonatomic, copy, readwrite) NSString *commentsStr;
 @property (nonatomic, copy, readwrite) NSString *repostsStr;
 @property (nonatomic, copy, readwrite) NSString *attitudesStr;
@@ -50,11 +49,10 @@
         })];
         
         _likeModel = [WBLikeModel shareInstance];
-        _webImage = [WBWebImage shareInstance];
         
         [self.contentView addSubview:({
             _headImg = [[UIImageView alloc] initWithFrame:CGRectMake(12, 22, 40, 40)];
-            _headImg.image = [UIImage imageNamed:@"head"];
+//            _headImg.image = [UIImage imageNamed:@"head"];
             _headImg.layer.cornerRadius = 20;
             _headImg.layer.masksToBounds = YES;
             _headImg;
@@ -238,27 +236,11 @@
     self.attitudes.frame = CGRectMake(SCREEN_WIDTH / 2 - self.attitudes.frame.size.width / 2 + SCREEN_WIDTH / 3, self.attitudes.frame.origin.y, self.attitudes.frame.size.width, self.attitudes.frame.size.height);
     
     // 加载图片
-    dispatch_queue_global_t globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_queue_main_t mainQueue = dispatch_get_main_queue();
+    [self.headImg sd_setImageWithURL:[NSURL URLWithString:item.user_pic] placeholderImage:[UIImage imageNamed:@"head"]];
+    for (int i = 0; i < self.picCount; i++) {
+        [self.picArray[i] sd_setImageWithURL:[NSURL URLWithString:item.picArray[i]] placeholderImage:[UIImage imageNamed:@"img"]];
+    }
     
-    dispatch_async(globalQueue, ^{
-        UIImage *image = [self.webImage loadImageWithUrlString:item.user_pic];
-        if (image) {
-            dispatch_async(mainQueue, ^{
-                self.headImg.image = image;
-            });
-        }
-        
-        for (int i = 0; i < self.picCount; i++) {
-            UIImage *image = [self.webImage loadImageWithUrlString:item.picArray[i]];
-            if (image) {
-                dispatch_async(mainQueue, ^{
-                    self.picArray[i].image = image;
-                });
-            }
-        }
-        
-    });
 }
 
 #pragma mark - private method
