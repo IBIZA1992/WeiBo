@@ -51,25 +51,17 @@
 
 - (void)_isAlive {
     NSString *urlString = [NSString stringWithFormat:@"https://api.weibo.com/oauth2/get_token_info"];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    request.HTTPMethod = @"POST";
-    NSString *bodyStr = [NSString stringWithFormat:@"access_token=%@", self.access_token];
-    request.HTTPBody = [bodyStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request
-                                                completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSError *jsonError;
-        id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        if ([(NSDictionary *)jsonObj objectForKey:@"error_code"]) {
+    NSDictionary *parameters= @{@"access_token":self.access_token};
+    [[AFHTTPSessionManager manager] POST:urlString parameters:parameters headers:nil progress:^(NSProgress * _Nonnull uploadProgress) {
+
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"载入成功");
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
             NSLog(@"载入失败");
             self.isAlive = NO;
             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
             [defaults setBool:NO forKey:@"isAlive"];
-        } else {
-            NSLog(@"载入成功");
-        }
-    }];
-    [dataTask resume];
+        }];
 }
 
 @end
