@@ -43,7 +43,9 @@
         _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         
         _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
-
+        MJRefreshAutoFooter *footer = [MJRefreshAutoFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        footer.triggerAutomaticallyRefreshPercent = -100;
+        _tableView.mj_footer = footer;
         
         [self addSubview:_tableView];
 
@@ -123,11 +125,10 @@
 #pragma mark - WBWeiBoLoaderDelegate
 
 - (void)didFinishLoader {
-    NSLog(@"");
     if (self.tableView.contentOffset.y < 0) {
         [self.tableView.mj_header endRefreshing];
     } else if (self.tableView.contentOffset.y > 0)  {
-        
+        [self.tableView.mj_footer endRefreshing];
     }
 }
 
@@ -142,28 +143,6 @@
     [self.tableView.mj_header beginRefreshing];
 }
 
-#pragma mark - private method
-
-// 上拉刷新操作
-
-//- (void)_beginUpRefresh {
-//    [UIView animateWithDuration:0.3
-//                     animations:^{
-//        self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, 40, 0.0f);  // 延长tableView
-//        self.tableView.contentOffset = CGPointMake(0, self.tableView.contentSize.height - self.tableView.frame.size.height + 40);
-//        } completion:^(BOOL finished) {
-//            self.pageNum++;
-//            __weak typeof(self) wself = self;
-//            [self.weiBoLoader loadWeiBoDataWithPageNmu:self.pageNum category:self.category finishBlock:^(BOOL success, NSMutableArray<WBWeiBoItem *> * _Nonnull dataArray) {
-//                __strong typeof(wself) strongSelf = wself;
-//                if (dataArray.count != 0) {
-//                    [strongSelf.dataArray addObjectsFromArray:dataArray];
-//                    [strongSelf.tableView reloadData];
-//                }
-//            }];
-//        }];
-//}
-
 #pragma mark - MJRefresh
 
 - (void)loadNewData {
@@ -173,6 +152,18 @@
         __strong typeof(wself) strongSelf = wself;
         if (dataArray.count != 0) {
             strongSelf.dataArray = dataArray;
+            [strongSelf.tableView reloadData];
+        }
+    }];
+}
+
+- (void)loadMoreData {
+    self.pageNum++;
+    __weak typeof(self) wself = self;
+    [self.weiBoLoader loadWeiBoDataWithPageNmu:self.pageNum category:self.category finishBlock:^(BOOL success, NSMutableArray<WBWeiBoItem *> * _Nonnull dataArray) {
+        __strong typeof(wself) strongSelf = wself;
+        if (dataArray.count != 0) {
+            [strongSelf.dataArray addObjectsFromArray:dataArray];
             [strongSelf.tableView reloadData];
         }
     }];
