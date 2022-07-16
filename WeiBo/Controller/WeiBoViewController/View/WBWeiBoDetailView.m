@@ -44,7 +44,7 @@
         
         _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
         MJRefreshAutoFooter *footer = [MJRefreshAutoFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
-        footer.triggerAutomaticallyRefreshPercent = -100;
+        footer.triggerAutomaticallyRefreshPercent = -60;
         _tableView.mj_footer = footer;
         
         [self addSubview:_tableView];
