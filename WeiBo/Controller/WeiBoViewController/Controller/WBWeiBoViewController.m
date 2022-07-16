@@ -187,12 +187,6 @@
     [self presentViewController:viewController animated:YES completion:nil];
 }
 
-- (void)weiBoDetailView:(WBWeiBoDetailView *)detailView userInteraction:(BOOL)isEnabled {
-    self.view.userInteractionEnabled = isEnabled;
-    self.tabBarController.view.userInteractionEnabled = isEnabled;
-    self.navigationController.view.userInteractionEnabled = isEnabled;
-}
-
 #pragma mark - UIScrollViewDelegate
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
