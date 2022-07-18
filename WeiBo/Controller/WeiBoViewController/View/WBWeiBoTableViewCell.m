@@ -12,6 +12,7 @@
 #import "WBButton.h"
 #import "WBLikeModel.h"
 #import <SDWebImage.h>
+#import <SDAutoLayout.h>
 
 @interface WBWeiBoTableViewCell()<UITextViewDelegate>
 @property (nonatomic, strong, readwrite) UIImageView *headImg;
@@ -30,7 +31,7 @@
 @property (nonatomic, copy, readwrite) NSString *commentsStr;
 @property (nonatomic, copy, readwrite) NSString *repostsStr;
 @property (nonatomic, copy, readwrite) NSString *attitudesStr;
-@property(nonatomic, copy, readwrite) WBClickWebBlock clickWebBlock;
+@property (nonatomic, copy, readwrite) WBClickWebBlock clickWebBlock;
 @property (nonatomic, strong, readwrite) WBWeiBoItem *item;
 @end
 
@@ -52,7 +53,6 @@
         
         [self.contentView addSubview:({
             _headImg = [[UIImageView alloc] initWithFrame:CGRectMake(12, 22, 40, 40)];
-//            _headImg.image = [UIImage imageNamed:@"head"];
             _headImg.layer.cornerRadius = 20;
             _headImg.layer.masksToBounds = YES;
             _headImg;
@@ -123,6 +123,11 @@
             _attitudes.center = self.barView.center;
             _attitudes;
         })];
+        
+        // 使用SDAutoLayout进行布局
+        
+        
+        
     }
     return self;
 }
@@ -155,13 +160,29 @@
         }
     }
     
-    _name.text = item.user_name;
-    [_name sizeToFit];
-    _name.frame = CGRectMake(_headImg.frame.origin.x + 50, 22, _name.bounds.size.width, _name.bounds.size.height);
+//    _name.text = item.user_name;
+//    [_name sizeToFit];
+//    _name.frame = CGRectMake(_headImg.frame.origin.x + 50, 22, _name.bounds.size.width, _name.bounds.size.height);
+    
+    self.name.text = item.user_name;
+    [self.name sizeToFit];
+    self.name.sd_layout
+    .leftSpaceToView(self.headImg, 10)
+    .topSpaceToView(self.contentView, 22)
+    .widthIs(self.name.bounds.size.width)
+    .heightIs(self.name.bounds.size.height);
+    
+//    _from.text = [NSString stringWithFormat:@"%@   %@", [self _timeFormat:item.created_at], item.source];
+//    [_from sizeToFit];
+//    _from.frame = CGRectMake(_headImg.frame.origin.x + 50, 22 + _name.bounds.size.height + 6, _from.bounds.size.width, _from.bounds.size.height);
     
     _from.text = [NSString stringWithFormat:@"%@   %@", [self _timeFormat:item.created_at], item.source];
     [_from sizeToFit];
-    _from.frame = CGRectMake(_headImg.frame.origin.x + 50, 22 + _name.bounds.size.height + 6, _from.bounds.size.width, _from.bounds.size.height);
+    self.from.sd_layout
+    .leftEqualToView(self.name)
+    .topSpaceToView(self.name, 6)
+    .widthIs(self.from.bounds.size.width)
+    .heightIs(self.from.bounds.size.height);
     
     _weiBo.text = item.text_raw;
     if ([item.text containsString:@"<span class=\"expand\">展开</span>"]) {
