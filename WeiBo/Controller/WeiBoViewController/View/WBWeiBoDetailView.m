@@ -16,6 +16,7 @@
 #import "WBHistoryModel.h"
 #import "WBCacheWeiBoModel.h"
 #import <MJRefresh.h>
+#import <SDAutoLayout.h>
 
 @interface WBWeiBoDetailView()<UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate, WBWeiBoLoaderDelegate>
 @property(nonatomic, strong, readwrite) WBWeiBoLoader *weiBoLoader;
@@ -65,7 +66,7 @@
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return ((WBWeiBoItem *)self.dataArray[indexPath.row]).height;
+    return [self.tableView cellHeightForIndexPath:indexPath model:[self.dataArray objectAtIndex:indexPath.row] keyPath:@"model" cellClass:[WBWeiBoTableViewCell class] contentViewWidth:SCREEN_WIDTH];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -102,6 +103,7 @@
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
     return self.dataArray.count;
 }
 
@@ -119,6 +121,7 @@
             [strongSelf.delegate weiBoDetailView:self pushViewController:webViewController];
         }
     }];
+//    [cell useCellFrameCacheWithIndexPath:indexPath tableView:self.tableView];
     return cell;
 }
 
