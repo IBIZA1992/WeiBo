@@ -40,7 +40,10 @@
 		A8B2CA63281D1D41003EA99A /* WBMessageViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B2CA62281D1D41003EA99A /* WBMessageViewController.m */; };
 		A8B2CA66281D1D5B003EA99A /* WBMineViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B2CA65281D1D5B003EA99A /* WBMineViewController.m */; };
 		A8B2CA69281D2AED003EA99A /* WBScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B2CA68281D2AED003EA99A /* WBScreen.m */; };
-		A8CC2AB328327E680086CDF6 /* WBWebImage.m in Sources */ = {isa = PBXBuildFile; fileRef = A8CC2AB228327E680086CDF6 /* WBWebImage.m */; };
+		A8C8C42228802C7400D6B598 /* libAFNetworking.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8C8C42128802C7400D6B598 /* libAFNetworking.a */; };
+		A8C8C42428802C7400D6B598 /* libMJRefresh.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8C8C42328802C7400D6B598 /* libMJRefresh.a */; };
+		A8C8C42628802C7400D6B598 /* libSDAutoLayout.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8C8C42528802C7400D6B598 /* libSDAutoLayout.a */; };
+		A8C8C42828802C7400D6B598 /* libSDWebImage.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8C8C42728802C7400D6B598 /* libSDWebImage.a */; };
 		A8E1624D281D19FF003FF549 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E1624C281D19FF003FF549 /* AppDelegate.m */; };
 		A8E16250281D19FF003FF549 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E1624F281D19FF003FF549 /* SceneDelegate.m */; };
 		A8E16256281D19FF003FF549 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A8E16254281D19FF003FF549 /* Main.storyboard */; };
@@ -128,8 +131,10 @@
 		A8B2CA65281D1D5B003EA99A /* WBMineViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBMineViewController.m; sourceTree = "<group>"; };
 		A8B2CA67281D2AED003EA99A /* WBScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBScreen.h; sourceTree = "<group>"; };
 		A8B2CA68281D2AED003EA99A /* WBScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBScreen.m; sourceTree = "<group>"; };
-		A8CC2AB128327E680086CDF6 /* WBWebImage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBWebImage.h; sourceTree = "<group>"; };
-		A8CC2AB228327E680086CDF6 /* WBWebImage.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBWebImage.m; sourceTree = "<group>"; };
+		A8C8C42128802C7400D6B598 /* libAFNetworking.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libAFNetworking.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8C8C42328802C7400D6B598 /* libMJRefresh.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libMJRefresh.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8C8C42528802C7400D6B598 /* libSDAutoLayout.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libSDAutoLayout.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8C8C42728802C7400D6B598 /* libSDWebImage.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libSDWebImage.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8E16248281D19FF003FF549 /* WeiBo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeiBo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8E1624B281D19FF003FF549 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		A8E1624C281D19FF003FF549 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -161,6 +166,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8C8C42228802C7400D6B598 /* libAFNetworking.a in Frameworks */,
+				A8C8C42428802C7400D6B598 /* libMJRefresh.a in Frameworks */,
+				A8C8C42628802C7400D6B598 /* libSDAutoLayout.a in Frameworks */,
+				A8C8C42828802C7400D6B598 /* libSDWebImage.a in Frameworks */,
 				A89EF6CD2825FB610039A1E6 /* WebKit.framework in Frameworks */,
 				A89EF6CB2825FB5B0039A1E6 /* libsqlite3.tbd in Frameworks */,
 				A89EF6C92825FB540039A1E6 /* libz.tbd in Frameworks */,
@@ -201,7 +210,6 @@
 				045AE97E4FEB040A4549B4FB /* Pods-WeiBo.debug.xcconfig */,
 				8D9284CA8CDA16BED75719F0 /* Pods-WeiBo.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -309,8 +317,6 @@
 				A8E844FB282E70B9002DCA8B /* WBHistoryModel.m */,
 				A8E84505282E719A002DCA8B /* WBHistorySearchModel.h */,
 				A8E84506282E719A002DCA8B /* WBHistorySearchModel.m */,
-				A8CC2AB128327E680086CDF6 /* WBWebImage.h */,
-				A8CC2AB228327E680086CDF6 /* WBWebImage.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -318,6 +324,10 @@
 		A89EF6B52825FB090039A1E6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A8C8C42128802C7400D6B598 /* libAFNetworking.a */,
+				A8C8C42328802C7400D6B598 /* libMJRefresh.a */,
+				A8C8C42528802C7400D6B598 /* libSDAutoLayout.a */,
+				A8C8C42728802C7400D6B598 /* libSDWebImage.a */,
 				A89EF6CC2825FB610039A1E6 /* WebKit.framework */,
 				A89EF6CA2825FB5B0039A1E6 /* libsqlite3.tbd */,
 				A89EF6C82825FB540039A1E6 /* libz.tbd */,
@@ -606,7 +616,6 @@
 				A873020D281F796100171954 /* WBWeiBoTableViewCell.m in Sources */,
 				A8E1624D281D19FF003FF549 /* AppDelegate.m in Sources */,
 				A8E1625E281D1A01003FF549 /* main.m in Sources */,
-				A8CC2AB328327E680086CDF6 /* WBWebImage.m in Sources */,
 				A8B2CA60281D1CF4003EA99A /* WBDiscoverViewController.m in Sources */,
 				A89EF6992823F3A10039A1E6 /* WBWebViewController.m in Sources */,
 				A8E16250281D19FF003FF549 /* SceneDelegate.m in Sources */,

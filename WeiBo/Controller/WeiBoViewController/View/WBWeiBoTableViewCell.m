@@ -11,9 +11,11 @@
 #import "WBTextView.h"
 #import "WBButton.h"
 #import "WBLikeModel.h"
-#import "WBWebImage.h"
+#import <SDWebImage.h>
+#import <SDAutoLayout.h>
 
 @interface WBWeiBoTableViewCell()<UITextViewDelegate>
+@property (nonatomic, strong, readwrite) WBWeiBoItem *model;
 @property (nonatomic, strong, readwrite) UIImageView *headImg;
 @property (nonatomic, strong, readwrite) UILabel *name;
 @property (nonatomic, strong, readwrite) UILabel *from;
@@ -27,11 +29,10 @@
 @property (nonatomic, strong, readwrite) WBButton *attitudes;
 @property (nonatomic, strong, readwrite) UIButton *likeButton;
 @property (nonatomic, strong, readwrite) WBLikeModel *likeModel;
-@property (nonatomic, strong, readwrite) WBWebImage *webImage;
 @property (nonatomic, copy, readwrite) NSString *commentsStr;
 @property (nonatomic, copy, readwrite) NSString *repostsStr;
 @property (nonatomic, copy, readwrite) NSString *attitudesStr;
-@property(nonatomic, copy, readwrite) WBClickWebBlock clickWebBlock;
+@property (nonatomic, copy, readwrite) WBClickWebBlock clickWebBlock;
 @property (nonatomic, strong, readwrite) WBWeiBoItem *item;
 @end
 
@@ -50,11 +51,9 @@
         })];
         
         _likeModel = [WBLikeModel shareInstance];
-        _webImage = [WBWebImage shareInstance];
         
         [self.contentView addSubview:({
             _headImg = [[UIImageView alloc] initWithFrame:CGRectMake(12, 22, 40, 40)];
-            _headImg.image = [UIImage imageNamed:@"head"];
             _headImg.layer.cornerRadius = 20;
             _headImg.layer.masksToBounds = YES;
             _headImg;
@@ -125,6 +124,7 @@
             _attitudes.center = self.barView.center;
             _attitudes;
         })];
+         
     }
     return self;
 }
@@ -157,13 +157,21 @@
         }
     }
     
-    _name.text = item.user_name;
-    [_name sizeToFit];
-    _name.frame = CGRectMake(_headImg.frame.origin.x + 50, 22, _name.bounds.size.width, _name.bounds.size.height);
+    self.name.text = item.user_name;
+    [self.name sizeToFit];
+    self.name.sd_layout
+    .leftSpaceToView(self.headImg, 10)
+    .topSpaceToView(self.contentView, 22)
+    .widthIs(self.name.bounds.size.width)
+    .heightIs(self.name.bounds.size.height);
     
     _from.text = [NSString stringWithFormat:@"%@   %@", [self _timeFormat:item.created_at], item.source];
     [_from sizeToFit];
-    _from.frame = CGRectMake(_headImg.frame.origin.x + 50, 22 + _name.bounds.size.height + 6, _from.bounds.size.width, _from.bounds.size.height);
+    self.from.sd_layout
+    .leftEqualToView(self.name)
+    .topSpaceToView(self.name, 6)
+    .widthIs(self.from.bounds.size.width)
+    .heightIs(self.from.bounds.size.height);
     
     _weiBo.text = item.text_raw;
     if ([item.text containsString:@"<span class=\"expand\">展开</span>"]) {
@@ -173,7 +181,12 @@
         _weiBo.text = item.text_raw;
         [self _needWebText:_weiBo.text];
     }
-    _weiBo.frame = CGRectMake(10, self.headImg.frame.origin.y + 40, SCREEN_WIDTH - 20, _weiBo.bounds.size.height);
+
+    _weiBo.sd_layout
+    .leftSpaceToView(self.contentView, 10)
+    .topSpaceToView(self.headImg, 0)
+    .widthIs(SCREEN_WIDTH - 20);
+    [_weiBo updateLayout];
     [_weiBo sizeToFit];
     
     // 加载图片
@@ -188,21 +201,43 @@
         CGFloat height = width;
         CGFloat x = 15 + (i % 3) * (width + 5);
         CGFloat y = _weiBo.bounds.size.height + _weiBo.frame.origin.y + (i / 3) * (height + 5);
-        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(x, y, width, height)];
-        imageView.image = [UIImage imageNamed:@"img"];
+        UIImageView *imageView = [[UIImageView alloc] init];
+        [self.contentView addSubview:imageView];
+        imageView.sd_layout
+        .topSpaceToView(self.contentView, y)
+        .leftSpaceToView(self.contentView, x)
+        .widthIs(width)
+        .heightIs(height);
         imageView.contentMode = UIViewContentModeScaleAspectFill;
         [imageView setClipsToBounds:YES];
-        [self.contentView addSubview:imageView];
         [picMutableArray addObject:imageView];
     }
     self.picArray = picMutableArray.copy;
-    if (_picCount != 0) {
-        self.divideView.frame = CGRectMake(0, self.picArray.lastObject.frame.origin.y + self.picArray.lastObject.bounds.size.height + 15, SCREEN_WIDTH, 1);
-    } else {
-        self.divideView.frame = CGRectMake(0, self.weiBo.frame.origin.y + self.weiBo.bounds.size.height + 0, SCREEN_WIDTH, 1);
-    }
     
-    self.barView.frame = CGRectMake(0, self.divideView.frame.origin.y + 1, SCREEN_WIDTH, 35);
+    // 布局分割线
+    if (_picCount != 0) {
+        self.divideView.sd_layout
+        .leftSpaceToView(self.contentView, 0)
+        .topSpaceToView(self.picArray.lastObject, 15)
+        .widthIs(SCREEN_WIDTH)
+        .heightIs(1);
+    } else {
+        self.divideView.sd_layout
+        .leftSpaceToView(self.contentView, 0)
+        .topSpaceToView(self.weiBo, 0)
+        .widthIs(SCREEN_WIDTH)
+        .heightIs(1);
+    }
+    [self.divideView updateLayout];
+    
+    // 布局bar
+    self.barView.sd_layout
+    .leftSpaceToView(self.contentView, 0)
+    .topSpaceToView(self.divideView, 1)
+    .widthIs(SCREEN_WIDTH)
+    .heightIs(35);
+    
+    // 布局bar上面三个图标
     CGFloat comments_num = [item.comments_count integerValue];
     CGFloat reposts_num = [item.reposts_count integerValue];
     CGFloat attitudes_num = [item.attitudes_count integerValue];
@@ -238,27 +273,10 @@
     self.attitudes.frame = CGRectMake(SCREEN_WIDTH / 2 - self.attitudes.frame.size.width / 2 + SCREEN_WIDTH / 3, self.attitudes.frame.origin.y, self.attitudes.frame.size.width, self.attitudes.frame.size.height);
     
     // 加载图片
-    dispatch_queue_global_t globalQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-    dispatch_queue_main_t mainQueue = dispatch_get_main_queue();
-    
-    dispatch_async(globalQueue, ^{
-        UIImage *image = [self.webImage loadImageWithUrlString:item.user_pic];
-        if (image) {
-            dispatch_async(mainQueue, ^{
-                self.headImg.image = image;
-            });
-        }
-        
-        for (int i = 0; i < self.picCount; i++) {
-            UIImage *image = [self.webImage loadImageWithUrlString:item.picArray[i]];
-            if (image) {
-                dispatch_async(mainQueue, ^{
-                    self.picArray[i].image = image;
-                });
-            }
-        }
-        
-    });
+    [self.headImg sd_setImageWithURL:[NSURL URLWithString:item.user_pic] placeholderImage:[UIImage imageNamed:@"head"]];
+    for (int i = 0; i < self.picCount; i++) {
+        [self.picArray[i] sd_setImageWithURL:[NSURL URLWithString:item.picArray[i]] placeholderImage:[UIImage imageNamed:@"img"]];
+    }
 }
 
 #pragma mark - private method
@@ -343,6 +361,17 @@
         self.clickWebBlock(URL);
     });
     return NO;
+}
+
+- (void)setModel:(WBWeiBoItem *)model
+{
+    self.item = model;
+    [self layoutTableViewCellWithItem:self.item clickWebBlock:^(NSURL * _Nonnull URL) {
+
+    }];
+    
+    [self setupAutoHeightWithBottomView:self.barView bottomMargin:0];
+    NSLog(@"");
 }
 
 @end

@@ -24,11 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param viewController 要推送的controller
 - (void)weiBoDetailView:(WBWeiBoDetailView *)detailView presentViewController:(UIViewController *)viewController;
 
-/// 需要禁用/启用手势
-/// @param detailView 自己的view
-/// @param isEnabled 需要禁用/启用的手势
-- (void)weiBoDetailView:(WBWeiBoDetailView *)detailView userInteraction:(BOOL)isEnabled;
-
 @end
 
 @interface WBWeiBoDetailView : UIView

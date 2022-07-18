@@ -11,12 +11,12 @@
 #import "WBOauthModel.h"
 #import "WBMineLikeViewController.h"
 #import "WBMineHistoryViewController.h"
-#import "WBWebImage.h"
+#import <AFNetworking.h>
+#import <SDWebImage.h>
 
 @interface WBMineViewController ()<WKNavigationDelegate>
 
 @property(nonatomic, strong, readwrite) WBOauthModel *oauthModel;
-@property(nonatomic, strong, readwrite) WBWebImage *webImage;
 
 // 公用组件
 @property(nonatomic, strong, readwrite) UIView *twoButtonDetailView;
@@ -45,8 +45,6 @@
         self.view.backgroundColor = [UIColor colorWithRed:0.933 green:0.929 blue:0.949 alpha:1];
         
         _oauthModel = [WBOauthModel shareInstance];
-      
-        _webImage = [WBWebImage shareInstance];
 
         // 初始化公用控件
         _twoButtonDetailView = [[UIView alloc] initWithFrame:UIRect(54, 257, 282, 89)];
@@ -153,33 +151,39 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         NSString *code = [[urlString componentsSeparatedByString:@"code="] lastObject];
         NSString *urlString = [NSString stringWithFormat:@"https://api.weibo.com/oauth2/access_token"];
-        NSMutableURLRequest *request=[NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-        request.HTTPMethod = @"POST";
-        NSString *bodyStr = [NSString stringWithFormat:@"client_id=2407730117&client_secret=4af118a9f9bbb956b1369327b9483875&grant_type=authorization_code&code=%@&redirect_uri=http://www.example.com/response", code];;
-        request.HTTPBody = [bodyStr dataUsingEncoding:NSUTF8StringEncoding];
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
-                [self.navigationController popViewControllerAnimated:YES];
-            });
-            NSError *jsonError;
-            id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-            if (!jsonError && !error && [(NSDictionary *)jsonObj objectForKey:@"access_token"]) {
-                self.oauthModel.access_token = [(NSDictionary *)jsonObj objectForKey:@"access_token"];
-                self.oauthModel.uid = [(NSDictionary *)jsonObj objectForKey:@"uid"];
-                self.oauthModel.isAlive = YES;
-                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                [defaults setObject:self.oauthModel.access_token forKey:@"access_token"];
-                [defaults setObject:self.oauthModel.uid forKey:@"uid"];
-                [defaults setBool:YES forKey:@"isAlive"];
-                dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
-                    [self.loginButton removeFromSuperview];
-                    [self.twoButtonDetailView removeFromSuperview];
-                    [self _layoutLogoutView];
-                });
-            }
-        }];
-        [dataTask resume];
+        
+        // 加载获得数据
+        NSDictionary *parameters= @{
+                                    @"client_id":@"2407730117",
+                                    @"client_secret":@"4af118a9f9bbb956b1369327b9483875",
+                                    @"grant_type":@"authorization_code",
+                                    @"code":code,
+                                    @"redirect_uri":@"http://www.example.com/response"
+        };
+        
+        [[AFHTTPSessionManager manager] POST:urlString parameters:parameters headers:nil progress:^(NSProgress * _Nonnull uploadProgress) {
+                    
+                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    NSLog(@"");
+                    dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
+                        [self.navigationController popViewControllerAnimated:YES];
+                    });
+                    self.oauthModel.access_token = [responseObject objectForKey:@"access_token"];
+                    self.oauthModel.uid = [responseObject objectForKey:@"uid"];
+                    self.oauthModel.isAlive = YES;
+                    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                    [defaults setObject:self.oauthModel.access_token forKey:@"access_token"];
+                    [defaults setObject:self.oauthModel.uid forKey:@"uid"];
+                    [defaults setBool:YES forKey:@"isAlive"];
+                    NSLog(@"");
+                    dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
+                        [self.loginButton removeFromSuperview];
+                        [self.twoButtonDetailView removeFromSuperview];
+                        [self _layoutLogoutView];
+                    });
+                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    NSLog(@"");
+                }];
     } else if ([urlString containsString:@"http://www.example.com/response?error_uri="]) {
         decisionHandler(WKNavigationActionPolicyCancel);
         [self.navigationController popViewControllerAnimated:YES];
@@ -203,30 +207,22 @@
     [self.view addSubview:self.twoButtonDetailView];
     [self.view addSubview:self.logoutButton];
     
+    // 加载用户信息
     NSString *urlString = [NSString stringWithFormat:@"https://api.weibo.com/2/users/show.json?access_token=%@&uid=%@", self.oauthModel.access_token, self.oauthModel.uid];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-    request.HTTPMethod = @"GET";
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSError *jsonError;
-        id jsonObj = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-        dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
-            self.nameLabel.text= [(NSDictionary *)jsonObj objectForKey:@"screen_name"];
-            [self.nameLabel sizeToFit];
-            self.nameLabel.frame = CGRectMake(UI(120), UI(135), self.nameLabel.bounds.size.width, self.nameLabel.bounds.size.height);
-        });
-        dispatch_queue_global_t downloadQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-        dispatch_queue_main_t mainQueue = dispatch_get_main_queue();
-        dispatch_async(downloadQueue, ^{
-            UIImage *image = [self.webImage loadImageWithUrlString:[(NSDictionary *)jsonObj objectForKey:@"avatar_large"]];
-            if (image) {
-                dispatch_async(mainQueue, ^{
-                    self.headImageView.image = image;
-                });
-            }
-        });
-    }];
-    [dataTask resume];
+    [[AFHTTPSessionManager manager] GET:urlString parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+            
+        } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSLog(@"");
+            dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
+                self.nameLabel.text= [responseObject objectForKey:@"screen_name"];
+                [self.nameLabel sizeToFit];
+                self.nameLabel.frame = CGRectMake(UI(120), UI(135), self.nameLabel.bounds.size.width, self.nameLabel.bounds.size.height);
+            });
+            // 加载头像
+            [self.headImageView sd_setImageWithURL:[NSURL URLWithString:[responseObject objectForKey:@"avatar_large"]] placeholderImage:[UIImage imageNamed:@"head"]];
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            
+        }];
 }
 
 - (void)_login {
@@ -245,25 +241,25 @@
     UIAlertController *alertController = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
     UIAlertAction *sureBtn = [UIAlertAction actionWithTitle:@"退出" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull   action) {
         NSString *urlString = [NSString stringWithFormat:@"https://api.weibo.com/oauth2/revokeoauth2?access_token=%@", self.oauthModel.access_token];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:urlString]];
-        request.HTTPMethod = @"GET";
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
-            NSError *jsonError;
-            if (!jsonError && !error) {
-                NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-                [defaults setBool:NO forKey:@"isAlive"];
-                self.oauthModel.isAlive = NO;
-                dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
-                    [self.logoutButton removeFromSuperview];
-                    [self.nameLabel removeFromSuperview];
-                    [self.twoButtonDetailView removeFromSuperview];
-                    [self.headImageView removeFromSuperview];
-                    [self _layoutLoginView];
-                });
-            }
-        }];
-        [dataTask resume];
+        
+        // 加载登出
+        [[AFHTTPSessionManager manager] GET:urlString parameters:nil headers:nil progress:^(NSProgress * _Nonnull downloadProgress) {
+                    
+                } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+                    NSLog(@"");
+                    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                    [defaults setBool:NO forKey:@"isAlive"];
+                    self.oauthModel.isAlive = NO;
+                    dispatch_async(dispatch_get_main_queue(), ^{  // 推出页面
+                        [self.logoutButton removeFromSuperview];
+                        [self.nameLabel removeFromSuperview];
+                        [self.twoButtonDetailView removeFromSuperview];
+                        [self.headImageView removeFromSuperview];
+                        [self _layoutLoginView];
+                    });
+                } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+                    NSLog(@"");
+                }];
     }];
     UIAlertAction *cancelBtn = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleDestructive handler:^(UIAlertAction * _Nonnull   action) {
     }];

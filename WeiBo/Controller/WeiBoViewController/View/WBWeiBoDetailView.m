@@ -15,14 +15,12 @@
 #import "WeiboSDK.h"
 #import "WBHistoryModel.h"
 #import "WBCacheWeiBoModel.h"
+#import <MJRefresh.h>
+#import <SDAutoLayout.h>
 
 @interface WBWeiBoDetailView()<UITableViewDataSource, UITableViewDelegate, UIScrollViewDelegate, WBWeiBoLoaderDelegate>
 @property(nonatomic, strong, readwrite) WBWeiBoLoader *weiBoLoader;
 @property(nonatomic, strong, readwrite) WBOauthModel *oauthModel;
-@property(nonatomic, strong, readwrite) UILabel *tableHeaderLabel;
-@property(nonatomic, strong, readwrite) UILabel *tableFooterLabel;
-@property(nonatomic, assign, readwrite) CGFloat perContentOffsetY;
-@property(nonatomic, assign, readwrite) BOOL perUserInteractionEnabled;
 @property(nonatomic, assign ,readwrite) NSInteger pageNum;  // 页数,初始值为0
 @property(nonatomic, assign, readwrite) WBWeiBoCategory category;
 @end
@@ -45,19 +43,10 @@
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
         _tableView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         
-        _tableHeaderLabel = [[UILabel alloc] init];
-        _tableHeaderLabel.text = @"下拉刷新";
-        _tableHeaderLabel.font = [UIFont systemFontOfSize:17];
-        _tableHeaderLabel.alpha = 0.5;
-        [_tableHeaderLabel sizeToFit];
-        _tableHeaderLabel.center = CGPointMake(SCREEN_WIDTH / 2, -27);
-        _tableHeaderLabel.text = @"加载中 ... ";
-        [_tableView addSubview:_tableHeaderLabel];
-        
-        _tableFooterLabel = [[UILabel alloc] init];
-        _tableFooterLabel.font = [UIFont systemFontOfSize:17];
-        _tableFooterLabel.alpha = 0.5;
-        [_tableView addSubview:_tableFooterLabel];
+        _tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingTarget:self refreshingAction:@selector(loadNewData)];
+        MJRefreshAutoFooter *footer = [MJRefreshAutoFooter footerWithRefreshingTarget:self refreshingAction:@selector(loadMoreData)];
+        footer.triggerAutomaticallyRefreshPercent = -60;
+        _tableView.mj_footer = footer;
         
         [self addSubview:_tableView];
 
@@ -77,7 +66,7 @@
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    return ((WBWeiBoItem *)self.dataArray[indexPath.row]).height;
+    return [self.tableView cellHeightForIndexPath:indexPath model:[self.dataArray objectAtIndex:indexPath.row] keyPath:@"model" cellClass:[WBWeiBoTableViewCell class] contentViewWidth:SCREEN_WIDTH];
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -114,6 +103,7 @@
 #pragma mark - UITableViewDataSource
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    
     return self.dataArray.count;
 }
 
@@ -131,136 +121,55 @@
             [strongSelf.delegate weiBoDetailView:self pushViewController:webViewController];
         }
     }];
+//    [cell useCellFrameCacheWithIndexPath:indexPath tableView:self.tableView];
     return cell;
-}
-
-#pragma mark - UIScrollViewDelegate
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-    if (self.userInteractionEnabled == NO && self.perUserInteractionEnabled) {
-        if (self.tableView.contentOffset.y < 0) {
-            self.tableHeaderLabel.text = @"加载中 ... ";
-        } else if (self.tableView.contentOffset.y > 0)  {
-            self.tableFooterLabel.text = @"加载中 ... ";
-        }
-    } else if (scrollView.contentOffset.y < -70 && self.perContentOffsetY >= -70 && self.userInteractionEnabled) {
-        self.tableHeaderLabel.text = @"释放更新";
-    } else if (((scrollView.contentOffset.y > -70 && self.perContentOffsetY <= -70) || (self.perContentOffsetY >= 0 && self.tableView.contentOffset.y < 0)) && self.userInteractionEnabled) {
-        self.tableHeaderLabel.text = @"下拉刷新";
-    } else if ((scrollView.contentOffset.y + scrollView.frame.size.height) >= scrollView.contentSize.height + 40 && !((self.perContentOffsetY + scrollView.frame.size.height) >= scrollView.contentSize.height + 40) && self.userInteractionEnabled) {
-        self.tableFooterLabel.text = @"释放加载";
-        [self.tableFooterLabel sizeToFit];
-        self.tableFooterLabel.center = CGPointMake(SCREEN_WIDTH / 2, scrollView.contentSize.height + 20);
-    } else if ((scrollView.contentOffset.y + scrollView.frame.size.height) < scrollView.contentSize.height + 40 && !((self.perContentOffsetY + scrollView.frame.size.height) < scrollView.contentSize.height + 40) && self.userInteractionEnabled) {
-        self.tableFooterLabel.text = @"加载更多";
-        [self.tableFooterLabel sizeToFit];
-        self.tableFooterLabel.center = CGPointMake(SCREEN_WIDTH / 2, scrollView.contentSize.height + 20);
-    }
-    self.perContentOffsetY = scrollView.contentOffset.y;
-    self.perUserInteractionEnabled = self.userInteractionEnabled;
-}
-
-//但用户停止拖动，手指将要离开屏幕的时候调用。
-- (void)scrollViewWillBeginDecelerating:(UIScrollView*)scrollView {
-    if (scrollView.contentOffset.y < -70) {
-        [self beginDownRefresh];
-    }
-    if ((scrollView.contentOffset.y + scrollView.frame.size.height) >= scrollView.contentSize.height + 40) {
-        [self _beginUpRefresh];
-    }
 }
 
 #pragma mark - WBWeiBoLoaderDelegate
 
 - (void)didFinishLoader {
-    if (self.userInteractionEnabled == NO) {
-        if (self.tableView.contentOffset.y < 0) {
-            [self _endDownRefresh];
-        } else if (self.tableView.contentOffset.y > 0)  {
-            [self _endUpRefresh];
-        }
-    }
-    self.userInteractionEnabled = YES;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(weiBoDetailView:userInteraction:)]) {
-        [self.delegate weiBoDetailView:self userInteraction:YES];
+    if (self.tableView.contentOffset.y < 0) {
+        [self.tableView.mj_header endRefreshing];
+    } else if (self.tableView.contentOffset.y > 0)  {
+        [self.tableView.mj_footer endRefreshing];
     }
 }
 
 #pragma mark - public method
 
 - (void)beginDownRefresh {
+    // 是否初始化页面
     if (self.isInitializedRefresh == NO) {
         self.isInitializedRefresh = YES;
     }
-    if (self.tableView.contentOffset.y > -70 && self.dataArray.count != 0) {
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]
-                              atScrollPosition:UITableViewScrollPositionTop
-                                      animated:NO];  // 移动
-    }
-    
-    // 禁用屏幕点击
-    self.userInteractionEnabled = NO;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(weiBoDetailView:userInteraction:)]) {
-        [self.delegate weiBoDetailView:self userInteraction:NO];
-    }
-    [UIView animateWithDuration:0.3
-                     animations:^{
-        self.tableView.contentInset = UIEdgeInsetsMake(70, 0.0f, 0.0f, 0.0f);  // 延长tableView
-        self.tableView.contentOffset = CGPointMake(0, -70);
-        } completion:^(BOOL finished) {
-            self.tableHeaderLabel.text = @"加载中 ... ";
-            self.pageNum = 0;
-            __weak typeof(self) wself = self;
-            [self.weiBoLoader loadWeiBoDataWithPageNmu:0 category:self.category finishBlock:^(BOOL success, NSMutableArray<WBWeiBoItem *> * _Nonnull dataArray) {
-                __strong typeof(wself) strongSelf = wself;
-                if (dataArray.count != 0) {
-                    strongSelf.dataArray = dataArray;
-                    [strongSelf.tableView reloadData];
-                }
-            }];
-        }];
+    // 开始刷新
+    [self.tableView.mj_header beginRefreshing];
 }
 
-#pragma mark - private method
+#pragma mark - MJRefresh
 
-- (void)_endDownRefresh {
-    [UIView animateWithDuration:0.2 animations:^{
-            UIEdgeInsets edgeInsets = self.tableView.contentInset;
-            edgeInsets.top = 0;
-            self.tableView.contentInset = edgeInsets;
+- (void)loadNewData {
+    self.pageNum = 0;
+    __weak typeof(self) wself = self;
+    [self.weiBoLoader loadWeiBoDataWithPageNmu:0 category:self.category finishBlock:^(BOOL success, NSMutableArray<WBWeiBoItem *> * _Nonnull dataArray) {
+        __strong typeof(wself) strongSelf = wself;
+        if (dataArray.count != 0) {
+            strongSelf.dataArray = dataArray;
+            [strongSelf.tableView reloadData];
+        }
     }];
 }
 
-- (void)_beginUpRefresh {
-    // 禁用屏幕点击
-    self.userInteractionEnabled = NO;
-    if (self.delegate && [self.delegate respondsToSelector:@selector(weiBoDetailView:userInteraction:)]) {
-        [self.delegate weiBoDetailView:self userInteraction:NO];
-    }
-    [UIView animateWithDuration:0.3
-                     animations:^{
-        self.tableView.contentInset = UIEdgeInsetsMake(0.0f, 0.0f, 40, 0.0f);  // 延长tableView
-        self.tableView.contentOffset = CGPointMake(0, self.tableView.contentSize.height - self.tableView.frame.size.height + 40);
-        } completion:^(BOOL finished) {
-            self.pageNum++;
-            __weak typeof(self) wself = self;
-            [self.weiBoLoader loadWeiBoDataWithPageNmu:self.pageNum category:self.category finishBlock:^(BOOL success, NSMutableArray<WBWeiBoItem *> * _Nonnull dataArray) {
-                __strong typeof(wself) strongSelf = wself;
-                if (dataArray.count != 0) {
-                    [strongSelf.dataArray addObjectsFromArray:dataArray];
-                    [strongSelf.tableView reloadData];
-                }
-            }];
-        }];
-}
-
-- (void)_endUpRefresh {
-    [UIView animateWithDuration:0.2 animations:^{
-            UIEdgeInsets edgeInsets = self.tableView.contentInset;
-            edgeInsets.bottom = 0;
-            self.tableView.contentInset = edgeInsets;
+- (void)loadMoreData {
+    self.pageNum++;
+    __weak typeof(self) wself = self;
+    [self.weiBoLoader loadWeiBoDataWithPageNmu:self.pageNum category:self.category finishBlock:^(BOOL success, NSMutableArray<WBWeiBoItem *> * _Nonnull dataArray) {
+        __strong typeof(wself) strongSelf = wself;
+        if (dataArray.count != 0) {
+            [strongSelf.dataArray addObjectsFromArray:dataArray];
+            [strongSelf.tableView reloadData];
+        }
     }];
-    self.tableFooterLabel.text = @"";
 }
 
 @end
