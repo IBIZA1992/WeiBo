@@ -14,6 +14,9 @@
 #import "WBHistorySearchView.h"
 #import "WBSearchView.h"
 #import "WBHistorySearchModel.h"
+#if DEBUG
+#import "FLEXManager.h"
+#endif
 
 @interface SceneDelegate ()<UITabBarControllerDelegate, UISearchBarDelegate, WBHistorySearchViewDelegate, WBSearchViewDelegate>
 @property(nonatomic, strong, readwrite) NSDate *preDate;  // 记录进入后台那一刻的时间
@@ -207,6 +210,17 @@
 - (void)searchView:(UIView *)searchView presentWebViewController:(UIViewController *)viewController {
     viewController.modalPresentationStyle = UIModalPresentationFullScreen;
     [self.navigationController presentViewController:viewController animated:NO completion:nil];
+}
+
+
+- (void)handleSixFingerQuadrupleTap:(UITapGestureRecognizer *)tapRecognizer
+{
+#if DEBUG
+    if (tapRecognizer.state == UIGestureRecognizerStateRecognized) {
+        // This could also live in a handler for a keyboard shortcut, debug menu item, etc.
+        [[FLEXManager sharedManager] showExplorer];
+    }
+#endif
 }
 
 @end

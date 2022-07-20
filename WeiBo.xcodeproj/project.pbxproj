@@ -53,6 +53,8 @@
 		A8E16268281D1A02003FF549 /* WeiBoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E16267281D1A02003FF549 /* WeiBoTests.m */; };
 		A8E16272281D1A02003FF549 /* WeiBoUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E16271281D1A02003FF549 /* WeiBoUITests.m */; };
 		A8E16274281D1A02003FF549 /* WeiBoUITestsLaunchTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E16273281D1A02003FF549 /* WeiBoUITestsLaunchTests.m */; };
+		A8E2E13C2886D9C1002C273C /* libFLEX.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E2E13B2886D9C1002C273C /* libFLEX.a */; };
+		A8E2E13E2886DA33002C273C /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A8E2E13D2886DA33002C273C /* libc++.tbd */; };
 		A8E844F5282E4406002DCA8B /* WBHistorySearchView.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E844F4282E4406002DCA8B /* WBHistorySearchView.m */; };
 		A8E844FC282E70B9002DCA8B /* WBHistoryModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E844FB282E70B9002DCA8B /* WBHistoryModel.m */; };
 		A8E84507282E719A002DCA8B /* WBHistorySearchModel.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E84506282E719A002DCA8B /* WBHistorySearchModel.m */; };
@@ -150,6 +152,9 @@
 		A8E1626D281D1A02003FF549 /* WeiBoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = WeiBoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8E16271281D1A02003FF549 /* WeiBoUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeiBoUITests.m; sourceTree = "<group>"; };
 		A8E16273281D1A02003FF549 /* WeiBoUITestsLaunchTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WeiBoUITestsLaunchTests.m; sourceTree = "<group>"; };
+		A8E2E1392886D61F002C273C /* libFLEX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFLEX.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8E2E13B2886D9C1002C273C /* libFLEX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; path = libFLEX.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8E2E13D2886DA33002C273C /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		A8E844F3282E4406002DCA8B /* WBHistorySearchView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBHistorySearchView.h; sourceTree = "<group>"; };
 		A8E844F4282E4406002DCA8B /* WBHistorySearchView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WBHistorySearchView.m; sourceTree = "<group>"; };
 		A8E844FA282E70B9002DCA8B /* WBHistoryModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WBHistoryModel.h; sourceTree = "<group>"; };
@@ -166,6 +171,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8E2E13E2886DA33002C273C /* libc++.tbd in Frameworks */,
+				A8E2E13C2886D9C1002C273C /* libFLEX.a in Frameworks */,
 				A8C8C42228802C7400D6B598 /* libAFNetworking.a in Frameworks */,
 				A8C8C42428802C7400D6B598 /* libMJRefresh.a in Frameworks */,
 				A8C8C42628802C7400D6B598 /* libSDAutoLayout.a in Frameworks */,
@@ -324,6 +331,9 @@
 		A89EF6B52825FB090039A1E6 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A8E2E13D2886DA33002C273C /* libc++.tbd */,
+				A8E2E13B2886D9C1002C273C /* libFLEX.a */,
+				A8E2E1392886D61F002C273C /* libFLEX.a */,
 				A8C8C42128802C7400D6B598 /* libAFNetworking.a */,
 				A8C8C42328802C7400D6B598 /* libMJRefresh.a */,
 				A8C8C42528802C7400D6B598 /* libSDAutoLayout.a */,

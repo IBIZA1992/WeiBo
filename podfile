@@ -3,4 +3,5 @@ target 'WeiBo' do
 	pod 'SDWebImage'
 	pod 'MJRefresh'
 	pod 'SDAutoLayout'
+	pod 'FLEX', :configurations => ['Debug']
 end
